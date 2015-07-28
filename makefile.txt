@@ -1,0 +1,91 @@
+# Old Canabis makefile (OpenWatcom Make)
+# maybe interesting for someone
+# please make using Cook (Howto.cook)
+
+# Convert images, compile resources and make Canabis
+# wmake [clean] [rc_bin=rc16] [os=OS2|WIN] [lang=EN|DE]
+# if "os" is omitted, they will be compiled for the platform running on
+# if "lang" is omitted, it will be compiled in English
+# if "rc_bin" is defined, the given resource compiler will be used
+# (e.g. rc16 16-bit compiler under OS/2)
+# clean, deletes all Base64 format files, compiled resource files and
+# the compiled program
+# Encoding the images and generating the CANASTA.RC file requires
+# TECO editor (http://almy.us/teco.html)
+
+!ifndef os
+!ifdef      __OS2__
+os = OS2
+!else ifdef __NT__
+os = WIN
+!endif
+!endif
+
+!ifndef lang
+msg_lang    = msg_en.rct
+!else ifeq lang DE
+msg_lang    = msg_de.rct
+!endif
+
+!ifeq os OS2
+os_spec     = __OS2__
+syswin_spec = OS2V2_PM
+
+!ifndef rc_bin
+rc_bin      = rc
+!endif
+icofile     = canasta_os2.ico
+
+!       else ifeq os WIN
+
+os_spec     = __WIN__
+syswin_spec = NT_WIN
+
+!ifndef rc_bin
+rc_bin      = wrc
+!endif
+icofile     = canasta_win.ico
+!endif
+
+targets = cards\2c.gif.64 cards\2d.gif.64 cards\2h.gif.64 &
+          cards\2s.gif.64 cards\3c.gif.64 cards\3d.gif.64 &
+          cards\3h.gif.64 cards\3s.gif.64 cards\4c.gif.64 &
+          cards\4d.gif.64 cards\4h.gif.64 cards\4s.gif.64 &
+          cards\5c.gif.64 cards\5d.gif.64 cards\5h.gif.64 &
+          cards\5s.gif.64 cards\6c.gif.64 cards\6d.gif.64 &
+          cards\6h.gif.64 cards\6s.gif.64 cards\7c.gif.64 &
+          cards\7d.gif.64 cards\7h.gif.64 cards\7s.gif.64 &
+          cards\8c.gif.64 cards\8d.gif.64 cards\8h.gif.64 &
+          cards\8s.gif.64 cards\9c.gif.64 cards\9d.gif.64 &
+          cards\9h.gif.64 cards\9s.gif.64 cards\ac.gif.64 &
+          cards\ad.gif.64 cards\ah.gif.64 cards\as.gif.64 &
+          cards\b.gif.64  cards\j.gif.64  cards\jc.gif.64 &
+          cards\jd.gif.64 cards\jh.gif.64 cards\js.gif.64 &
+          cards\kc.gif.64 cards\kd.gif.64 cards\kh.gif.64 &
+          cards\ks.gif.64 cards\qc.gif.64 cards\qd.gif.64 &
+          cards\qh.gif.64 cards\qs.gif.64 cards\tc.gif.64 &
+          cards\td.gif.64 cards\th.gif.64 cards\ts.gif.64
+
+all canasta.exe : .SYMBOLIC
+
+canasta.exe : canasta.for *.fi fortrantk.lib canasta.res
+        wfl386 $[. fortrantk.lib -FE=$^@ &
+               -BM -DEF=$(os_spec) -L=$(syswin_spec)
+        $(rc_bin) canasta.res canasta.exe
+
+canasta.res : canasta.rc
+        $(rc_bin) -r canasta.rc
+
+canasta.rc : generate.tes $(icofile) $(targets) $(msg_lang)
+        tecoc mung generate.tes,$(msg_lang) $(os)
+
+$(targets) : enbase64.tes cards\*.gif
+        tecoc mung enbase64.tes,$^* $^@
+
+clean : .SYMBOLIC
+        if exist cards\*.gif.64 del cards\*.gif.64
+        if exist *.res del *.res
+        if exist *.rc  del *.rc
+        if exist *.obj del *.obj
+        if exist *.exe del *.exe
+

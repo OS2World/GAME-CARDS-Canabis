@@ -1,0 +1,17 @@
+<canabis>
+ <visual>
+  <window/>
+  <language>msg_en.dll</language>
+  <cards>standar.dll</cards>
+  <background type="0">
+   <color>darkgreen</color>
+   <image gamma="0.7"/>
+  </background>
+ </visual>
+ <rules>
+  Placeholder
+ </rules>
+ <game>
+  Placeholder
+ </game>
+</canabis>

@@ -1,0 +1,154 @@
+/* Convert images, compile resources and make Canabis
+   cook [canabis] [cards] [messages] [wash] [takeaway_bin] [takeaway_src]
+        [rc=...] [osys=OS/2|..._NT-...]
+   - if "osys" is omitted, they will be compiled for the platform running on
+   - if "rc" is defined, the given resource compiler will be used
+     (e.g. rc16 16-bit compiler under OS/2)
+   - wash: wash up the dishes - delete all files created during the process
+   - takeaway_bin: cook takeaway binaries - create binaries.zip package
+   - takeaway_src: cook takeaway sources - create sources.zip package
+   Required tools/libraries:
+   - OS/2 and Windows binaries of Cook (including CMDSHELL):
+     http://hobbes.nmsu.edu/cgi-bin/h-search?key=cook+os2-nt&pushbutton=Search
+   - OpenWatcom FORTRAN/77 (v.1.5 recommended): http://www.openwatcom.org
+   - Resource Compiler:
+     OS/2 Developers Toolkit, WRC from OpenWatcom FORTRAN/77 NT version
+   - FORTRAN/TK: svn.netlabs.org/fortrantk (fortrantk.lib, include files and
+     runtime libraries)
+   - EXPAT/77: xml.netlabs.org (expat77.lib, include files and runtime dll)
+   - TECO editor (TECOC): http://almy.us/teco.html
+   - PKZIP compatible ZIP, eg. Info-ZIP: http://www.info-zip.org */
+
+        /* set shell explicitely - necessary for Windows */
+setenv SHELL=cmdshell.exe;
+
+#ifndef osys
+ osys = [os system];
+ #if [matches %1_NT-%2 [osys]]
+  osys = NT;
+ #endif
+#endif
+#if [matches [osys] OS/2]
+ os_spec     = __OS2__;
+ syswin_spec = OS2V2_PM;
+ dll_spec    = OS2V2_DLL;
+
+ #ifndef rc
+  rc = rc;
+ #endif
+ icofile = game_os2.ico;
+#elif [matches [osys] NT]
+ os_spec     = __WIN__;
+ syswin_spec = NT_WIN;
+ dll_spec    = NT_DLL;
+
+ #ifndef rc
+  rc = wrc;
+ #endif
+ icofile = game_win.ico;
+#endif
+
+        /* list of subdirs in cards */
+cardssd = [filter_out %1/%2.% [glob cards\/*]];
+
+        /* additional tools */
+mung = tecoc mung;
+zip  = zip;
+
+        /* all targets */
+all : canabis cards messages;
+
+        /* main canasta.exe recipe ->
+           based on implicit recipes */
+canabis : canabis.exe;
+
+canabis.exe : canabis.for fortrantk.lib expat77.lib [glob *.fi] canabis.res
+{
+ wfl386 canabis.for fortrantk.lib expat77.lib -FE\=[target]
+        -BM -DEF\=[os_spec] -L\=[syswin_spec];
+ [rc] canabis.res [target];
+}
+
+canabis.rc : [icofile]
+{
+        /* generate canasta.rc on the fly */
+ echo ["if" [matches [osys] OS/2] "then" DEFAULTICON]
+      ["if" [matches [osys] NT]   "then" Canabis ICON]
+      [icofile] > [target];
+}
+
+        /* cards recipe (generate .DLL files) ->
+           based on implicit recipes */
+cards : [addsuffix .dll [cardssd]];
+
+        /* messages recipe (generate .DLL files) ->
+           based on implicit recipes */
+messages : [addsuffix .dll [basename [glob msg\/*.rct]]];
+
+        /* prototype dummy DLL file for cards and language DLLs */
+prototype.dll : prototype.for
+{
+ wfl386 [need] -FE\=[target] -L\=[dll_spec];
+}
+
+        /* Implicit recipes */
+%0%.dll : %0%.res prototype.dll
+{
+ copy prototype.dll [dos-path [target]];
+ [rc] [dos-path %0%.res [target]];
+}
+
+%0%.res : %0%.rc
+{
+ [rc] -r [dos-path [need] [target]];
+}
+
+msg/%.rc : msg/%.rct genmsg.tes
+{
+ [mung] genmsg.tes,% [osys];
+}
+
+cards/%.rc : [addsuffix .64 [glob cards/%\/*.gif]]
+             cards/%/cards.name gencards.tes
+{
+ [mung] gencards.tes,% [osys];
+}
+
+%0%.gif.64 : %0%.gif enbase64.tes
+{
+ [mung] enbase64.tes,[dos-path %0%.gif [target]];
+}
+
+/* takeaway meal: binaries
+   create a .zip package */
+takeaway_bin : binaries.zip;    /* cook has problems with filenames > 11.3 */
+
+binaries.zip : all [filter_out prototype.dll [glob *.dll *.xml images\/*.gif]]
+               readme.txt osl-2.1.txt
+{
+ [zip] [target] canabis.exe *.dll *.xml cards\\*.dll msg\\*.dll images\\*.gif
+       readme.txt osl-2.1.txt -x prototype.dll;
+}
+
+/* takeaway meal: sources
+   create a .zip package */
+takeaway_src : sources.zip;     /* see above */
+
+sources.zip : Howto.cook cards/cards20.zip [addsuffix /cards.name [cardssd]]
+              [glob *.for *.fi *.ico *.tes *.txt *.xml images\/*.gif
+               msg\/*.rct [addsuffix \/*.gif [cardssd]]]
+{
+ [zip] [target] *.for *.fi *.ico *.tes *.txt *.xml Howto.cook images\\*.gif
+       msg\\*.rct cards\\cards20.zip [addsuffix \\*.gif [dos-path [cardssd]]]
+       [addsuffix \\cards.name [dos-path [cardssd]]];
+}
+
+/* wash up the dishes
+   delete all files generated during the process */
+wash:
+{
+ del [addsuffix \\*.gif.64 [dos-path [cardssd]]]
+     cards\\*.res cards\\*.rc cards\\*.dll msg\\*.res msg\\*.rc msg\\*.dll
+     prototype.dll *.res *.rc *.obj *.exe;
+}
+

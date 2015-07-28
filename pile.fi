@@ -1,0 +1,53 @@
+* Canabis - Canasta game for OS/2 and Windows
+* by Robin Haberkorn
+* Include file for common variables (PILE)
+* Open Software License v.2.1
+
+      character     cards*2(54)          ! all card image names
+      integer       decksptr,
+     &              idsptr,
+     &              size(58),
+     &              idsize(58),
+     &              lxpos,               ! xpos for GO pile
+     &              lxposop,
+     &              cypos,               ! ypos of canasta cards
+     &              cyposop,
+     &              mc(58),              ! number of main cards
+     &              points(2),           ! GO points for both players
+     &              addpts(2),           ! hand points, canasta bonus
+     &              limit(2),            ! limit to go out
+     &              canasta(2),          ! -1/1 = whether player has canasta
+     &              pnew(58),            ! pile old - from behind
+     &              config_ptr           ! pointer to config root node
+      logical       drawn,
+     &              blocked,             ! permanently blocked (wildcard)
+     &              initial,             ! initial pile
+     &              lrreached
+* 1. deck = Pile
+* 2. deck = Talor
+* 3./4. deck = Player cards
+* 5./6. deck = Player reds
+
+      common /PILE/ cards,
+     &              decksptr,
+     &              idsptr,
+     &              size,
+     &              idsize,
+     &              lxpos,
+     &              lxposop,
+     &              cypos,
+     &              cyposop,
+     &              mc,
+     &              points,
+     &              addpts,
+     &              limit,
+     &              canasta,
+     &              pnew,
+     &              drawn,
+     &              config_ptr,
+     &              blocked,
+     &              initial,
+     &              lrreached
+
+      save   /PILE/
+

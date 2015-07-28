@@ -1,0 +1,45 @@
+! TECO macro for generating OS/2 or Windows resource script for
+  a cards .DLL file (for one subdirectory in cards directory)
+  by Robin Haberkorn
+  Syntax: tecoc mung gencards.tes,cardssubdir OS !
+
+13:^UI 10:^UI      ! I = Newline !
+
+B@1S" "            ! Look for space !
+B,.-1XA            ! cards subdir into reg A !
+.,ZXB              ! OS into reg B !
+
+                   ! Intro message !
+@^A"TECO - Generating cards\" :GA @^A".rc ...":GI
+@^A"Subdirectory: cards\":GA:GI
+@^A"Operating System: ":GB:GI
+
+HK                  ! clear text buffer !
+@EW"cards\^EQA.rc"  ! output file = cards\subdir.rc !
+
+0UG                 ! insert card resources; G = resid !
+                    ! look for cards\subdir\*.GIF.64 files !
+@EN"cards\^EQA\*.gif.64"
+
+<@:EN""; %G         ! read filespec until no further file found, G++ !
+ 0QB-^^O"E          ! OS2: RESOURCE typeid resid !
+  @I"RESOURCE 256 " QG\
+   |                ! Win: resid typeid !
+  QG\ @I" 256"
+ '
+ @I" PRELOAD "     ! add PRELOAD for both OS !
+ G* BGI            ! insert filename, Newline !
+>
+
+@EQA"cards\^EQA\cards.name" ! A = content of cards.name !
+0QB-^^O"E                   ! insert card set name as resource !
+ @I"RESOURCE 300 1 PRELOAD" BGI
+ @I"BEGIN" BGI BGA BGI @I"END"
+  |
+ @I"1 300 PRELOAD" BGI
+ @I"{" BGI BGA BGI @I"}"
+' BGI
+
+@^A"Ready!":GI     ! Ready message !
+EX                 ! Save and Exit !
+

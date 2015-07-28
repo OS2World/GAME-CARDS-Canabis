@@ -1,0 +1,106 @@
+* Canabis - Canasta game for OS/2 and Windows
+* by Robin Haberkorn
+* Include file for common messages (MSG)
+* Open Software License v.2.1
+
+      character*256   errstr(13),       ! 13 Error messages
+     &                msgstr(9)         ! 9 Friendly message
+      common /MSGCOM/ errstr,
+     &                msgstr
+
+      save /MSGCOM/
+
+c$noreference
+* Resource string ID constants
+      integer   MENU_CardsName          ! Cards name (cards .dll)
+      parameter(MENU_CardsName = 1)     ! typeid: 300
+
+      integer   MENU_LanguageName       ! Language name, typeid: 300
+      parameter(MENU_LanguageName = 1)
+
+      integer   ERROR_UnknownEvent,     ! Error strings, typeid: 400
+     &          ERROR_AlreadyDrawn,
+     &          ERROR_DrawFirst,
+     &          ERROR_NoWildcard,
+     &          ERROR_AlreadyAtTable,
+     &          ERROR_CardsMinimum,
+     &          ERROR_JustOneCanasta,
+     &          ERROR_MaincardsMinimum,
+     &          ERROR_CannotAdd,
+     &          ERROR_CannotDiscard,
+     &          ERROR_FrozenTalor,
+     &          ERROR_CannotTakeTalor,
+     &          ERROR_RemoveOtherCards
+      parameter(ERROR_UnknownEvent     = 1,
+     &          ERROR_AlreadyDrawn     = 2,
+     &          ERROR_DrawFirst        = 3,
+     &          ERROR_NoWildcard       = 4,
+     &          ERROR_AlreadyAtTable   = 5,
+     &          ERROR_CardsMinimum     = 6,
+     &          ERROR_JustOneCanasta   = 7,
+     &          ERROR_MaincardsMinimum = 8,
+     &          ERROR_CannotAdd        = 9,
+     &          ERROR_CannotDiscard    = 10,
+     &          ERROR_FrozenTalor      = 11,
+     &          ERROR_CannotTakeTalor  = 12,
+     &          ERROR_RemoveOtherCards = 13)
+
+      integer   MESSAGE_Welcome,        ! (Friendly) strings, typeid: 500
+     &          MESSAGE_WonGame,
+     &          MESSAGE_CloseCanabis,
+     &          MESSAGE_About,
+     &          MESSAGE_HelpPile,
+     &          MESSAGE_HelpTalor,
+     &          MESSAGE_HelpHand,
+     &          MESSAGE_HelpMeld,
+     &          MESSAGE_HelpCanasta
+      parameter(MESSAGE_Welcome      = 1,
+     &          MESSAGE_WonGame      = 2,
+     &          MESSAGE_CloseCanabis = 3,
+     &          MESSAGE_About        = 4,
+     &          MESSAGE_HelpPile     = 5,
+     &          MESSAGE_HelpTalor    = 6,
+     &          MESSAGE_HelpHand     = 7,
+     &          MESSAGE_HelpMeld     = 8,
+     &          MESSAGE_HelpCanasta  = 9)
+
+      integer   MENU_Title_OS2,         ! Menu strings, typeid: 600
+     &          MENU_Title_Windows,
+     &          MENU_Game,
+     &          MENU_Game_NewGame,
+     &          MENU_Game_Exit,
+     &          MENU_Options,
+     &          MENU_Options_Language,
+     &          MENU_Options_Cards,
+     &          MENU_Options_Background,
+     &          MENU_Background_Color,
+     &          MENU_Background_Image,
+     &          MENU_Background_Pseudotransparency,
+     &          MENU_Background_ChooseColor,
+     &          MENU_Background_ChooseImage,
+     &          MENU_Background_GammaValue,
+     &          MENU_Help,
+     &          MENU_Help_CanastaRules,
+     &          MENU_Help_PlayingCanabis,
+     &          MENU_Help_About
+      parameter(MENU_Title_OS2                     = 1,
+     &          MENU_Title_Windows                 = 2,
+     &          MENU_Game                          = 3,
+     &          MENU_Game_NewGame                  = 4,
+     &          MENU_Game_Exit                     = 5,
+     &          MENU_Options                       = 6,
+     &          MENU_Options_Language              = 7,
+     &          MENU_Options_Cards                 = 8,
+     &          MENU_Options_Background            = 9,
+     &          MENU_Background_Color              = 10,
+     &          MENU_Background_Image              = 11,
+     &          MENU_Background_Pseudotransparency = 12,
+     &          MENU_Background_ChooseColor        = 13,
+     &          MENU_Background_ChooseImage        = 14,
+     &          MENU_Background_GammaValue         = 15,
+     &          MENU_Help                          = 16,
+     &          MENU_Help_CanastaRules             = 17,
+     &          MENU_Help_PlayingCanabis           = 18,
+     &          MENU_Help_About                    = 19)
+c$reference
+

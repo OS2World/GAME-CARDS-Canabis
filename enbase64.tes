@@ -1,0 +1,35 @@
+! TECO macro for encoding a file in Base 64
+  by Robin Haberkorn
+  Syntax: tecoc mung enbase64.tes,infile outfile !
+
+0,128EZ            ! turn on flag: don't stop reading if there's a FF !
+                   ! MAYBE TECOC SPECIFIC !
+B@1S" "            ! Look for space !
+B,.-1XW            ! input file into reg W !
+.,ZXX              ! output file into reg X !
+HK                 ! clear buffer !
+@^UZ"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+                   ! Z = Base 64 character set !
+
+@^A/TECO - Encoding "/:GW@^A/" to Base 64 and writing "/:GX@^A/"...
+/                  ! Intro message !
+
+@EQW"^EQW"         ! open filename from reg W in reg W !
+                   ! (TECO bug? target reg doesn't matter) !
+@EW"^EQX"          ! output filename = reg X !
+
+0U1<                       ! reg 1 is pointer to file content !
+ Q1QWUA %1QWUB %1QWUC      ! read in input chars A,B,C; refresh pointer !
+
+ QA/4QZ@I""                ! buffer += char(A>>2) !
+ ((QA&3)*16)#(QB/16)QZ@I"" ! buffer += char(((A&0x03)<<4)|(B>>4)) !
+ QB"L @I"=" | ((QB&15)*4)#(QC/64)QZ@I"" '
+ QC"L @I"=" | QC&63QZ@I"" '
+                           ! if B=-1 then add "=" else add char(((B&0x0F)<<2)|(C>>6)) !
+                           ! if C=-1 then add "=" else add char(C&0x3F) !
+%1QW:; >                   ! pointer++; exit loop if there are no more characters !
+
+J< 76:C; 13@I""10@I"" > ! insert LF every 76 bytes !
+@^A"Ready!
+" EX                    ! exit and save !
+

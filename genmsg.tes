@@ -1,0 +1,64 @@
+! TECO macro for generating OS/2 or Windows resource script for
+  a language .DLL file (from a specified language file in msg\)
+  by Robin Haberkorn
+  Syntax: tecoc mung genmsg.tes,langfile OS !
+
+                   ! macro J: insert RECOURCE header, G = resid, H = typeid !
+@^UJ#              ! call with :MJ - registers necessary !
+ BGC               ! insert C !
+ QF"E              ! OS2 typeid resid !
+  QH\ @I" " QG\
+   |               ! Win  resid  typeid !
+  QG\ @I" " QH\
+ '
+ @I" PRELOAD"      ! add PRELOAD for both !
+#
+
+13:^UI 10:^UI      ! I = Newline !
+
+B@1S" "            ! Look for space !
+B,.-1XA            ! language file (without suffix) into reg A !
+.,ZXB              ! OS into reg B !
+
+                   ! Intro message !
+@^A"TECO - Generating msg\" :GA @^A".rc ...":GI
+@^A"Language file: msg\" :GA @^A".rct":GI
+
+@^A"Operating System: "
+0QB-^^O"E          ! os = "O"S2 !
+ @^A"OS/2":GI
+ @^UC"RESOURCE "   ! C = "RESOURCE " !
+ @^UD"BEGIN"       ! D = "BEGIN" !
+ @^UE"END"         ! E = "END" !
+ 0UF               ! F = 0 !
+  |                ! else (os = win) !
+ @^A"Windows":GI
+ @^UD"{"@^UE"}"    ! C = "", D = "{", E = "}" !
+ 1UF               ! F = 1 !
+'
+
+@ER"msg\^EQA.rct"  ! open file from reg A + .rct !
+@EW"msg\^EQA.rc"   ! output file = resource script !
+
+EY                 ! read in language file !
+
+0UG 300UH          ! H = 300 = typeid !
+<                  ! counter = G = resid !
+ 0A-^^."E          ! period on line -> !
+  0UG 100%H        ! G=0, H=H+100 !
+  K                ! delete this line !
+ '
+
+ %G :MJ            ! G++, output RESOURCE header !
+ BGI BGD BGI       ! Newline, D, Newline !
+ <L 0A-^^""E 1; '  ! skip lines until there is a quote !
+    0A-^^."E 1; '  ! Windows: add linebreak to end of line !
+    0A:;
+    QF"N @I"\012" ' >
+ BGE BGI           ! E, Newline !
+
+0A:; >             ! test next character -> loop if end not reached !
+
+@^A"Ready!":GI     ! Ready message !
+EX                 ! Save and Exit !
+
